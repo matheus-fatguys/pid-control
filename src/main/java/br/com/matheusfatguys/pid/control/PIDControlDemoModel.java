@@ -116,10 +116,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
     private double pid() {
         lastError = error;
         double newError = doubleSetPoint - doublePosition;
-        if (newError > radius * 0.1) {
-            newError = radius * 0.1;
-        }
-        double realError = newError;
+       
         sumError += newError;
         if (sumError > radius) {
             sumError = radius;
@@ -137,7 +134,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
             pidGain = -maxThrotle;
         }
 
-        setError(realError);
+        setError(newError);
 
         return pidGain;
     }
