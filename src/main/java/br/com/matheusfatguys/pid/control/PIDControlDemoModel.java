@@ -17,12 +17,12 @@ import java.util.TimerTask;
  */
 public class PIDControlDemoModel implements PropertyChangeListener {
 
-    private int P = 100;
-    private int I = 0;
-    private int D = 0;
+    private double P = 0.6 * 0.36 * 10;//0.6 * 0.36;
+    private double I = 0; 
+    private double D = 10000 * 10; //1000
     private int power = 7000;
     private int maxThrotle = 100;
-    private int mass = 8000;
+    private int mass = 1000;
     private double doubleMass = mass / 100d;
     private int friction = 8;
     private double doubleFriction = friction / 100000d;
@@ -53,7 +53,9 @@ public class PIDControlDemoModel implements PropertyChangeListener {
     private int throtle = -100;
     private double doubleThrotle = 0;
     private boolean activatePidController;
-    private boolean gravityModel = true;
+    private boolean flyingModel = false;
+    private boolean spaceModel = true;
+    private boolean groundModel = false;
     private int frequency = 100;
     private double radius = 1;
 
@@ -72,7 +74,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
                 setDoublePower(power / 5d); //[0 - 2,000.00] watts
                 setDoubleSetPoint(setPoint / 10000d * radius); //[-1 - 1]m
 
-                if (gravityModel) {
+                if (flyingModel) {
                     setDoubleThrotle((throtle + 100d) / 2d); // [0% - 100%]
                 } else {
                     setDoubleThrotle(throtle); // [-100% - 100%]
@@ -82,7 +84,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
 
                     pidGain = pid();
 
-                    if (gravityModel) {
+                    if (flyingModel) {
                         if (error < 0 && error > -radius * 0.1 && pidGain < 0 && speed < 0) {
                             pidGain = -0.01 * pidGain;
                         }
@@ -99,10 +101,13 @@ public class PIDControlDemoModel implements PropertyChangeListener {
                 }
 
                 double p;
-                if (gravityModel) {
-                    p = modelGravity();
-                } else {
-                    p = model();
+                if (flyingModel) {
+                    p = modelFlying();
+                } else if (groundModel){
+                    p = modelGround();
+                }
+                else {
+                    p = modelSpace();
                 }
                 setPosition((int) ((p) * 10000 / radius));
                 lastTimeStep = timeStep;
@@ -139,11 +144,40 @@ public class PIDControlDemoModel implements PropertyChangeListener {
         return pidGain;
     }
 
-    private double modelGravity() {
+    private double modelSpace() {
+
+        resultingForce = doublePower * doubleThrotle / maxThrotle;
+
+        if (doublePosition <= -radius && resultingForce < 0 || doublePosition >= radius && resultingForce > 0) {
+            resultingForce = 0;
+        }
+
+        double newAcc = (resultingForce / doubleMass);
+        double newSpeed = speed + newAcc * timeDelta;
+
+        double newPosition = (doublePosition + newSpeed * timeDelta);
+
+        if (newPosition > radius) {
+            newPosition = radius;
+            newSpeed = 0;
+        } else if (newPosition < -radius) {
+            newPosition = -radius;
+            newSpeed = 0;
+        }
+
+        setForce(resultingForce);
+        setAcc(newAcc);
+        setSpeed(newSpeed);
+        setDoublePosition(newPosition);
+
+        return newPosition;
+    }
+    
+    private double modelFlying() {
 
         double newFriction = (friction / 100000d); //[0 - 0.10]
 
-        doublePower = doublePower * doubleThrotle / 100;
+        doublePower = doublePower * doubleThrotle / maxThrotle;
 
         double newForce = doublePower;
 //        force = speed != 0 ? doublePower / Math.abs(speed) : doublePower;
@@ -186,11 +220,11 @@ public class PIDControlDemoModel implements PropertyChangeListener {
         return newPosition;
     }
 
-    private double model() {
+    private double modelGround() {
 
         double newFriction = (friction / 10000d); //[0 - 1]
 
-        doublePower = doublePower * doubleThrotle / 100;
+        doublePower = doublePower * doubleThrotle / maxThrotle;
 
         double newForce = doublePower;
 
@@ -232,6 +266,26 @@ public class PIDControlDemoModel implements PropertyChangeListener {
         setDoublePosition(newPosition);
 
         return newPosition;
+    }
+
+    public boolean isSpaceModel() {
+        return spaceModel;
+    }
+
+    public void setSpaceModel(boolean spaceModel) {
+        Object old = this.spaceModel;
+        this.spaceModel = spaceModel;
+        firePropertyChange("spaceModel", old, spaceModel);
+    }
+
+    public boolean isGroundModel() {
+        return groundModel;
+    }
+
+    public void setGroundModel(boolean groundModel) {
+        Object old = this.groundModel;
+        this.groundModel = groundModel;
+        firePropertyChange("groundModel", old, groundModel);
     }
 
     public double getAcc() {
@@ -484,14 +538,14 @@ public class PIDControlDemoModel implements PropertyChangeListener {
         firePropertyChange("frequency", old, frequency);
     }
 
-    public boolean isGravityModel() {
-        return gravityModel;
+    public boolean isFlyingModel() {
+        return flyingModel;
     }
 
-    public void setGravityModel(boolean gravityModel) {
-        Object old = this.gravityModel;
-        this.gravityModel = gravityModel;
-        firePropertyChange("gravityModel", old, gravityModel);
+    public void setFlyingModel(boolean flyingModel) {
+        Object old = this.flyingModel;
+        this.flyingModel = flyingModel;
+        firePropertyChange("flyingModel", old, flyingModel);
     }
 
     public boolean isActivatePidController() {
@@ -515,7 +569,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
     }
 
     public int getP() {
-        return P;
+        return (int)P;
     }
 
     public void setP(int P) {
@@ -525,7 +579,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
     }
 
     public int getI() {
-        return I;
+        return (int)I;
     }
 
     public void setI(int I) {
@@ -535,7 +589,7 @@ public class PIDControlDemoModel implements PropertyChangeListener {
     }
 
     public int getD() {
-        return D;
+        return (int)D;
     }
 
     public void setD(int D) {
