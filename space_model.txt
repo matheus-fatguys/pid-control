@@ -1,0 +1,26 @@
+
+MaxThrotle = 100
+Throtle varies from 0 to MaxThrotle
+mass = m
+position = p
+acceleration = a
+
+p' = speed
+p'' = speed' = a
+
+Power = P
+MaxThrotle = MT
+Throtle = th
+
+
+f(t) = Power * Throtle(t)/MaxThrotle
+f(t) = (p/MT).th(t)
+F(s) = (p/MT).TH(s)
+H1(s) = 1 / (p/MT) = MT/p
+
+f(t) = m.a = m.p''
+F(s) = m.s.P(s)
+P(s) = F(s) / m.s^2
+H2(s)= P(s) / F(s) = 1 / m.s^2
+
+H(s) = H1(s).H2(s) = (MT/p) * (1 / m.s^2) = MT / (p.m.s^2)
