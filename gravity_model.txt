@@ -1,0 +1,39 @@
+gravity = 9.8
+MaxThrotle = 100
+Throtle varies from 0 to MaxThrotle
+mass = m
+position = p
+acceleration = a
+gravity acceleration constant = g
+air resistence constant = b
+
+p' = speed
+p'' = speed' = a
+
+Power = P
+MaxThrotle = MT
+Weigth = m * g = w
+F-air  = b * speed = b * p'
+Throtle = th
+
+F(th) = Power * Throtle(t)/MaxThrotle
+F(th) = P * th(t)/MT
+Fr(th) = F(th) - Weigth - F-air 
+Fr(th) = m * a
+F(th) - Weigth - F-air = m * a
+F(th) - m * g - b * p' = m * p''
+F(th) - m * g - b * p' = m * p''
+P * th(t)/MT = m * p'' + b * p' + m * g
+th(t) = (m * p'' + b * p' + m * g)*(MT/P)
+th(t) = ((m * MT)/P) * p'' + ((b * MT)/P) * p' + (m * g * MT)/P
+
+P(s) = ((m * MT)/P) * s^2 + ((b * MT)/P) * s + ((m * g * MT)/P) / s
+P(s) = MT/P( m * s^2 + b * s + (m * g) / s)
+
+H(s) = TH(s) / P(s) = 1 / MT/P( m * s^2 + b * s + (m * g) / s)
+H(s) = TH(s) / P(s) = s / MT/P( m * s^3 + b * s^2 + (m * g))
+
+
+
+
+
