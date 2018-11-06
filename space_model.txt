@@ -8,19 +8,37 @@ acceleration = a
 p' = speed
 p'' = speed' = a
 
-Power = P
+Power = pw
 MaxThrotle = MT
 Throtle = th
 
 
 f(t) = Power * Throtle(t)/MaxThrotle
-f(t) = (p/MT).th(t)
-F(s) = (p/MT).TH(s)
-H1(s) = 1 / (p/MT) = MT/p
+f(t) = (pw/MT).th(t) = m.a = m.p''
+(pw/MT).th(t) = m.p''
+th(t) = (MT.m/Pw).p''
+TH = (MT.m/Pw).s^2.P
+H = 1/(MT.m/Pw).s^2 : MT=100, m=10, Pw=1.000 -> 1/s^2
 
-f(t) = m.a = m.p''
-F(s) = m.s.P(s)
-P(s) = F(s) / m.s^2
-H2(s)= P(s) / F(s) = 1 / m.s^2
+A = 1
+B = (MT.m/Pw).s^2 : MT=100, m=10, Pw=1.000 -> s^2
 
-H(s) = H1(s).H2(s) = (MT/p) * (1 / m.s^2) = MT / (p.m.s^2)
+C = Kp + Ki/s + Kd.s = (Kp.s + Ki + Kd.s^2)/s = (Kd.s^2 + Kp.s + Ki)/s
+
+C = (Kd.s^2 + Kp.s + Ki)
+D = s
+
+A.C = 1.(Kd.s^2 + Kp.s + Ki) =(Kd.s^2 + Kp.s + Ki)
+B.D = (MT.m/Pw).s^2.s = (MT.m/Pw).s^3 : MT=100, m=10, Pw=1.000 -> s^3
+
+Closed Loop Transfer Function:
+
+T = A.C / [A.C+B.D] = (Kd.s^2 + Kp.s + Ki) / [(Kd.s^2 + Kp.s + Ki)+((MT.m/Pw).s^3)]
+T = A.C / [A.C+B.D] = (Kd.s^2 + Kp.s + Ki) / [(MT.m/Pw).s^3 + Kd.s^2 + Kp.s + Ki] : MT=100, m=10, Pw=1.000 -> (Kd.s^2 + Kp.s + Ki) / [s^3 + Kd.s^2 + Kp.s + Ki]
+
+Ts<1, no overshooting -> poles reals and negative, ts=1/|pi| => |pi| = 1 -> p0=-1, p1=-100, p2=-120
+(s+1).(s+100).(s+120) = [(MT.m/Pw).s^3 + Kd.s^2 + Kp.s + Ki]
+(s^2+100.s+s+100).(s+120) = [(MT.m/Pw).s^3 + Kd.s^2 + Kp.s + Ki]
+(s^3+100.s^2+s^2+100.s + 120.s^2+12000.s+120.s+12000)= [(MT.m/Pw).s^3 + Kd.s^2 + Kp.s + Ki]
+s^3 + (100+1+120)s^2 + (100+12000+120)s +12000= [(MT.m/Pw).s^3 + Kd.s^2 + Kp.s + Ki]
+Kd = 221, Kp = 12220, Ki = 12000
