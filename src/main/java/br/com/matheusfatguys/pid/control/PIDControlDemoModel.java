@@ -17,10 +17,10 @@ import java.util.TimerTask;
  */
 public class PIDControlDemoModel implements PropertyChangeListener {
 
-    private double P = 0.6 * 0.36 * 10;//0.6 * 0.36;
-    private double I = 0; 
-    private double D = 10000 * 10; //1000
-    private int power = 7000;
+    private double P = 122200;//12220;
+    private double I = 1200000; //12000
+    private double D = 2210; //221
+    private int power = 5000;
     private int maxThrotle = 100;
     private int mass = 1000;
     private double doubleMass = mass / 100d;
